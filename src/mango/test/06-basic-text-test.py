@@ -170,6 +170,10 @@ class BasicTextTests(mango.UserDocsTextTests):
         assert len(docs) == 1
         assert docs[0]["user_id"] == 14
 
+        docs = self.db.find({"email": {"$gt": "w"}})
+        assert len(docs) == 1
+        assert docs[0]["email"] == "whitleyharvey@fangold.com"
+
     def test_gte(self):
         docs = self.db.find({"age": {"$gte": 77}})
         assert len(docs) == 2
@@ -195,6 +199,10 @@ class BasicTextTests(mango.UserDocsTextTests):
         docs = self.db.find({"foo": {"$gte": "bar car apple"}})
         assert len(docs) == 1
         assert docs[0]["user_id"] == 14
+
+        docs = self.db.find({"email": {"$gte": "w"}})
+        assert len(docs) == 1
+        assert docs[0]["email"] == "whitleyharvey@fangold.com"
 
     def test_and(self):
         docs = self.db.find({"age": 22, "manager": True})

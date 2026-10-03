@@ -315,7 +315,7 @@ get_range(min, _Arg) ->
 get_range(max, Arg) when is_number(Arg) ->
     <<"*">>;
 get_range(max, _Arg) ->
-    <<"\u0x10FFFF">>.
+    <<"\x{10FFFF}"/utf8>>.
 
 field_exists_query(Path) ->
     % We specify two here for :* and .* so that we don't incorrectly
@@ -568,6 +568,13 @@ convert_gte_test() ->
         convert_selector(#{<<"field">> => #{<<"$gte">> => 42}})
     ),
     ?assertEqual(
+        {op_field,
+            {[[<<"field">>], <<":">>, <<"string">>], [
+                <<"[">>, <<"\"w\"">>, <<" TO \x{10FFFF}]"/utf8>>
+            ]}},
+        convert_selector(#{<<"field">> => #{<<"$gte">> => <<"w">>}})
+    ),
+    ?assertEqual(
         {op_or, [
             {op_fieldname, {[[<<"field">>], ":"], "*"}},
             {op_fieldname, {[[<<"field">>]], ".*"}}
@@ -586,6 +593,13 @@ convert_gt_test() ->
     ?assertEqual(
         {op_field, {[[<<"field">>], <<":">>, <<"number">>], [<<"{">>, <<"42">>, <<" TO *]">>]}},
         convert_selector(#{<<"field">> => #{<<"$gt">> => 42}})
+    ),
+    ?assertEqual(
+        {op_field,
+            {[[<<"field">>], <<":">>, <<"string">>], [
+                <<"{">>, <<"\"w\"">>, <<" TO \x{10FFFF}]"/utf8>>
+            ]}},
+        convert_selector(#{<<"field">> => #{<<"$gt">> => <<"w">>}})
     ),
     ?assertEqual(
         {op_or, [
